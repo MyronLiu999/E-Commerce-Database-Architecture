@@ -53,3 +53,46 @@
 - **Database:** MongoDB
 - **Type:** Document Store
 - **Reason:** Behavior events are high-volume, append-only, and timestamped, better suited for flexible storage.
+
+# Q2 ERD
+![Database diagram](db_design_1114.png)
+
+# Q3
+I keep a small Product table in MySQL for attributes that are common to all products (product_id, name, base_price, category, etc.), and then store the category-specific attributes in a document store like MongoDB.
+
+# Q4
+I will store the session state in a fast, non-relational key-value store such as Redis. Whenever a user visit the site, the server will issue a session token, which has the session data as value.
+
+# Q5
+
+
+# Q6
+
+
+# Q7
+
+
+# Q8
+Data that benefits most from in-memory storage includes sessions and shopping carts because they change often and require very fast access. I would store these in Redis and keep a small identifier (like a session_id or user_id) in the user’s cookie. When the user comes back, the server reads that identifier and retrieves the latest session or cart data from Redis or MySQL.
+
+# Q9
+
+
+# Q10
+## Queries that graph database better than relational
+Graph databases can answer multi-step relationship queries much faster than relational joins. For examples, we can form a  "finding products that are often bought together" "guess what you like" graph database by studying user purchase behavior.
+
+## Graph model design
+Nodes:
+- User
+- Product
+- Category
+
+Relationships:
+- (:User)-[:VIEWED]->(:Product)
+- (:User)-[:ADDED_TO_CART]->(:Product)
+- (:User)-[:PURCHASED]->(:Product)
+- (:Product)-[:IN_CATEGORY]->(:Category)
+- (:Product)-[:BOUGHT_WITH]->(:Product)
+
+
