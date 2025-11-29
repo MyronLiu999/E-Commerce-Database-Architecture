@@ -121,7 +121,7 @@
 
 
 # Q2 ERD
-![Database diagram](db_design_SQL_Nov23.png)
+![Database diagram](db_design_SQL_Nov28.png)
 
 # Q3
 I keep a small Product table in MySQL for attributes that are common to all products (product_id, name, price, category, etc.), and then store the category-specific attributes in a document store like MongoDB.
