@@ -5,32 +5,38 @@
 ### User
 - **Database:** MySQL
 - **Type:** Relational
-- **Reason:** User profiles, addresses, and payment methods follow a fixed schema and require strong consistency and foreign key relationships.
+- **Reason:** Its schema is fixed and structured (e.g., email, first_name, phone_number), which aligns with SQL’s predefined table design to avoid redundancy and ensure efficient storage.
+
+### Address/City/State/Country
+- **Database:** MySQL
+- **Type:** Relational
+- **Reason:** Address has consistent structured fields (street, zip_code, city_id, state_id, country_id) that match SQL’s rigid schema requirement, ensuring data uniformity
 
 ### Order
 - **Database:** MySQL
 - **Type:** Relational
-- **Reason:** Orders, order items, payments, and shipping require ACID transactions to prevent partial or inconsistent states.
+- **Reason:** Involves transaction-critical workflows (order creation, inventory deduction, payment recording) that require SQL’s ACID compliance to ensure atomicity (all steps succeed or fail together).
 
-### Shipping
+### OrderProduct
 - **Database:** MySQL
 - **Type:** Relational
-- **Reason:** Structured shipping methods, rates, and delivery tracking.
-
-### Inventory
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Stock levels need strong consistency to prevent overselling and ensure accurate quantity updates.
+- **Reason:** Uses composite foreign keys (order_id → Order.order_id, product_id → Product.product_id) to enforce data validity, ensuring no order items reference non-existent orders or products. Supports efficient cross-table aggregation (e.g., calculating total items per order) via SQL’s JOIN and GROUP BY clauses.
 
 ### Payment
 - **Database:** MySQL
 - **Type:** Relational
-- **Reason:** Financial transactions require strict ACID guarantees and transaction rollbacks.
+- **Reason:** Requires strict data consistency for financial records (e.g., payment amount, transaction status), which SQL’s transactions guarantee to avoid discrepancies (e.g., missing payments for orders).
+
+### Shipping/ShippingMethod
+- **Database:** MySQL
+- **Type:** Relational
+- **Reason:** Features structured status and logistics fields (shipping_method, delivery_timestamp) that benefit from SQL’s index support for fast status queries (e.g., tracking all pending shipments).
+
 
 ### Return
 - **Database:** MySQL
 - **Type:** Relational
-- **Reason:** Refunds link tightly to original orders and payment transactions, requiring consistent joins and transactional integrity.
+- **Reason:** Has fixed structure requiring consistent joins and transactional integrity that benefit from SQL’s index support for fast status queries.
 
 ## Non-Relational
 
@@ -40,24 +46,110 @@
 - **Reason:** 
   - MySQL stores core product attributes (id, name, price, category, inventory) that need consistency
   - MongoDB stores flexible, category-specific attributes (size, color, material) that vary by product type
-
+  - Contain some AI generated data in this part
 **Database name:** `ecommerce_catalog`  
 **Collection:** `product_attributes`
 
 ```json
-{
+[{
   "product_id": "P12345",
   "category": "fashion",
   "attributes": {
     "size": ["S", "M", "L"],
     "color": ["blue", "black"],
     "material": "cotton",
-    "fit": "oversized"
+    "kind": "sweater"
   },
   "last_updated": "2025-11-25T17:00:00Z"
-}
+},
+{
+  "product_id": "D67890",
+  "category": "headphone",
+  "attributes": {
+    "brand": "Sony",
+    "model": "WH-1000XM6",
+    "connection": ["Bluetooth 5.3", "Bluetooth 5.2"],
+    "battery_life": ["30 hours", "20 hours"],
+    "charging_method": ["USB-C"],
+    "weight": "100g"
+  },
+  "last_updated": "2025-11-26T10:30:00Z"
+},
+{
+  "product_id": "H23456",
+  "category": "vase",
+  "attributes": {
+    "style": "Nordic minimalist",
+    "material": ["ceramic base", "linen lampshade"],
+    "size": {
+      "height": "45cm",
+      "base_diameter": "15cm",
+      "shade_diameter": "25cm"
+    },
+    "color": ["white base + gray shade", "beige base + white shade"],
+  },
+  "last_updated": "2025-11-27T14:15:00Z"
+}]
 ```
 
+
+### Product Inventory
+- **Database:** MongoDB
+- **Type:** Document Store
+- **Reason:** 
+  - MongoDB stores flexible, category-specific attributes (size, color, material) that vary by product type
+  - Contain some AI generated data in this part
+**Database name:** `ecommerce_catalog_inventory`  
+**Collection:** `product_attributes`
+
+```json
+[{
+  "product_id": "P12345",
+  "category": "fashion",
+  "attributes": {
+    "size": "S",
+    "color": "blue",
+    "material": "cotton",
+    "kind": "sweater"
+  },
+},
+{
+  "product_id": "P12345",
+  "category": "fashion",
+  "attributes": {
+    "size": "L",
+    "color": "black",
+    "material": "cotton",
+    "kind": "sweater"
+  },
+},
+{
+  "product_id": "D67890",
+  "category": "headphone",
+  "attributes": {
+    "brand": "Sony",
+    "model": "WH-1000XM6",
+    "connection": "Bluetooth 5.3",
+    "battery_life": "30 hours",
+    "charging_method": "USB-C",
+    "weight": "100g"
+  },
+},
+{
+  "product_id": "H23456",
+  "category": "vase",
+  "attributes": {
+    "style": "Nordic minimalist",
+    "material": "ceramic base",
+    "size": {
+      "height": "45cm",
+      "base_diameter": "15cm",
+      "shade_diameter": "25cm"
+    },
+    "color": "white base + gray shade",
+  },
+}]
+```
 
 
 ### Shopping Cart
@@ -69,11 +161,15 @@
 
 ```json
 {
-  "items": {
-    "P12345": 2,
-    "P54321": 1
-  },
-  "total_items": 3,
+  "cart_id": "CART_8888",
+  "items": [
+    {
+      "product_id": "P12345",
+      "spec_id": "S_black",          // Specific attributes
+      "quantity": 2          
+    }
+  ],
+  "total_items": 2,
   "updated_at": "2025-11-25T16:40:00Z"
 }
 ```
@@ -121,10 +217,10 @@
 
 
 # Q2 ERD
-![Database diagram](db_design_SQL_Nov28.png)
+![Database diagram](db_design_SQL_Nov28_version4.png)
 
 # Q3
-I keep a small Product table in MySQL for attributes that are common to all products (product_id, name, price, category, etc.), and then store the category-specific attributes in a document store like MongoDB.
+I keep a small Product table in MySQL for attributes that are common to all products (product_id, name, price, category, etc.), and then store the category-specific attributes in a document store like MongoDB. In addition, we introduced 'spec_id' to distinguish different attributes of products
 
 # Q4
 
@@ -170,7 +266,8 @@ If someone adds items as a **guest** and then logs in:
 4. The merged cart becomes the new "official" cart for that user.
 
 # Q5
-
+1. order_product_subtotal: I defined this part be the sum of product amount and tax. They are computed and stored together each time instead of store them separately, which can reduce the rlationships and raise overall efficiency.
+2. amount: I define this part be product amount + shipping fee + tax for the same reason.
 
 # Q6
 ## Data Flow Between Databases
