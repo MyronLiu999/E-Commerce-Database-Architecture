@@ -268,6 +268,7 @@ If someone adds items as a **guest** and then logs in:
 # Q5
 1. order_product_subtotal: I defined this part be the sum of product amount and tax. They are computed and stored together each time instead of store them separately, which can reduce the rlationships and raise overall efficiency.
 2. amount: I define this part be product amount + shipping fee + tax for the same reason.
+3. spec_id: in Shopping Cart database, I defined a variable called "spec_id", which contains many information about variable attributes of a specific product. It can reduce the connection when we want to access product in shopping cart.
 
 # Q6
 ## Data Flow Between Databases
