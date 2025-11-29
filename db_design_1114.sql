@@ -13,6 +13,7 @@ CREATE TABLE State (
     state_id INT AUTO_INCREMENT PRIMARY KEY,
     state_name VARCHAR(100) NOT NULL,
     country_id INT NOT NULL,
+    tax_rate DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (country_id) REFERENCES Country(country_id)
 );
 
@@ -27,12 +28,10 @@ CREATE TABLE City (
 -- Address Table
 CREATE TABLE Address (
     address_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
     address_type VARCHAR(50) NOT NULL COMMENT,
     zip_code VARCHAR(20),
     city_id INT NOT NULL,
     street_line TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (city_id) REFERENCES City(city_id)
 );
 
@@ -42,32 +41,24 @@ CREATE TABLE User (
     email VARCHAR(255) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(20)
+    phone_number VARCHAR(20) NOT NULL,
+    password_hash VARCHAR(50) NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES Address(address_id)
 );
 
 -- Product Table
 CREATE TABLE Product (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     category VARCHAR(100) NOT NULL
-);
-
--- Inventory Table
-CREATE TABLE Inventory (
-    inventory_id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    quantity_available INT NOT NULL DEFAULT 0,
-    address_id INT NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Product(product_id),
-    FOREIGN KEY (address_id) REFERENCES Address(address_id)
 );
 
 -- Payment Table
 CREATE TABLE Payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     payment_status TINYINT NOT NULL COMMENT '0-Unpaid/1-Paid',
-    payment_method VARCHAR(50) NOT NULL COMMENT 'Card/Pay Pale/App Pay',
+    payment_method VARCHAR(50) NOT NULL COMMENT 'Credit Card/Bank Account',
     amount DECIMAL(10, 2) NOT NULL,
     payment_timestamp DATETIME NOT NULL
 );
@@ -86,7 +77,7 @@ CREATE TABLE Order (
 -- Shipping Method Table
 CREATE TABLE ShippingMethod (
     shipping_method_id INT AUTO_INCREMENT PRIMARY KEY,
-    method_name VARCHAR(100) NOT NULL COMMENT 'Express/JD.com/Amazon',
+    method_name VARCHAR(100) NOT NULL COMMENT 'Standard/Overnight/Mid-tier',
     base_cost DECIMAL(10, 2) NOT NULL
 );
 
@@ -95,6 +86,7 @@ CREATE TABLE Shipping (
     shipping_id INT AUTO_INCREMENT PRIMARY KEY,
     shipping_method_id INT NOT NULL,
     address_id INT NOT NULL,
+    delivery_timestamp DATETIME NOT NULL,
     FOREIGN KEY (shipping_method_id) REFERENCES ShippingMethod(shipping_method_id),
     FOREIGN KEY (address_id) REFERENCES Address(address_id)
 );
@@ -104,9 +96,8 @@ CREATE TABLE OrderProduct (
     order_product_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
-    unit_price DECIMAL(10, 2) NOT NULL,
     shipping_id INT NOT NULL,
-    order_product_total DECIMAL(10, 2) NOT NULL,
+    order_product_subtotal DECIMAL(10, 2) NOT NULL COMMENT 'Product amount + shipping fee + tax',
     order_product_status TINYINT NOT NULL COMMENT '0-Send/1-Close',
     order_id INT NOT NULL,
     FOREIGN KEY (product_id) REFERENCES Product(product_id),
@@ -118,19 +109,13 @@ CREATE TABLE OrderProduct (
 CREATE TABLE 'Return' (
     return_id INT AUTO_INCREMENT PRIMARY KEY,
     order_product_id INT NOT NULL,
-    return_reason VARCHAR(255) NOT NULL,
+    shipping_id INT NOT NULL,
+    return_status TINYINT NOT NULL COMMENT '0-Applied/1-Approved/2-Rejected/3-Close',
     return_requested_time DATETIME NOT NULL,
-    return_received_time DATETIME,
+    exp_return_time DATETIME,
     return_amount DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_product_id) REFERENCES OrderProduct(order_product_id)
-);
-
--- Refund Table
-CREATE TABLE Refund (
-    refund_id INT AUTO_INCREMENT PRIMARY KEY,
-    refund_amount DECIMAL(10, 2) NOT NULL,
-    refund_status TINYINT NOT NULL COMMENT '0-Processing/1-Refund Successfully/2-Refund Reject',
-    refund_timestamp DATETIME NOT NULL
+    FOREIGN KEY (order_product_id) REFERENCES OrderProduct(order_product_id),
+    FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id)
 );
 
 
