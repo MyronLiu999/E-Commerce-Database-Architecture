@@ -43,6 +43,7 @@ CREATE TABLE User (
     last_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     password_hash VARCHAR(50) NOT NULL,
+    address_id INT NOT NULL,
     FOREIGN KEY (address_id) REFERENCES Address(address_id)
 );
 
