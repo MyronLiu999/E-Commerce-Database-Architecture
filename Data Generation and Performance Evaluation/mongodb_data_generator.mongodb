@@ -1,0 +1,704 @@
+// MongoDB Data Generator for E-Commerce Database
+// Based on database_design.md specifications
+// Compatible with DataGrip MongoDB Console
+
+// Switch to ecommerce_catalog database
+use('ecommerce_catalog');
+
+// Drop existing collections (optional - uncomment if needed)
+// db.product_specs.drop();
+
+// ====================
+// PRODUCT SPECIFICATIONS COLLECTION
+// Collection: product_specs
+// ====================
+
+db.product_specs.insertMany([
+    // Clothing Products
+    {
+        "spec_id": "12345_S_blue",
+        "product_id": 12345,
+        "attributes": {
+            "size": "S",
+            "color": "blue",
+            "material": "cotton",
+            "care_instructions": "machine wash cold",
+            "fit": "regular"
+        }
+    },
+    {
+        "spec_id": "12345_M_green",
+        "product_id": 12345,
+        "attributes": {
+            "size": "M",
+            "color": "green",
+            "material": "cotton",
+            "care_instructions": "machine wash cold",
+            "fit": "regular"
+        }
+    },
+    {
+        "spec_id": "12345_L_black",
+        "product_id": 12345,
+        "attributes": {
+            "size": "L",
+            "color": "black",
+            "material": "cotton",
+            "care_instructions": "machine wash cold",
+            "fit": "regular"
+        }
+    },
+    {
+        "spec_id": "34567_L_red",
+        "product_id": 34567,
+        "attributes": {
+            "size": "L",
+            "color": "red",
+            "material": "polyester",
+            "care_instructions": "machine wash warm",
+            "fit": "athletic",
+            "sport_type": "running"
+        }
+    },
+    {
+        "spec_id": "34567_XL_red",
+        "product_id": 34567,
+        "attributes": {
+            "size": "XL",
+            "color": "red",
+            "material": "polyester",
+            "care_instructions": "machine wash warm",
+            "fit": "athletic",
+            "sport_type": "running"
+        }
+    },
+    {
+        "spec_id": "34567_S_white",
+        "product_id": 34567,
+        "attributes": {
+            "size": "S",
+            "color": "white",
+            "material": "polyester",
+            "care_instructions": "machine wash warm",
+            "fit": "athletic",
+            "sport_type": "running"
+        }
+    },
+    {
+        "spec_id": "45678_XL_black",
+        "product_id": 45678,
+        "attributes": {
+            "size": "XL",
+            "color": "black",
+            "material": "cotton blend",
+            "care_instructions": "machine wash cold",
+            "fit": "relaxed",
+            "sleeve_type": "long"
+        }
+    },
+    {
+        "spec_id": "45678_M_blue",
+        "product_id": 45678,
+        "attributes": {
+            "size": "M",
+            "color": "blue",
+            "material": "cotton blend",
+            "care_instructions": "machine wash cold",
+            "fit": "relaxed",
+            "sleeve_type": "long"
+        }
+    },
+    {
+        "spec_id": "45678_S_green",
+        "product_id": 45678,
+        "attributes": {
+            "size": "S",
+            "color": "green",
+            "material": "cotton blend",
+            "care_instructions": "machine wash cold",
+            "fit": "relaxed",
+            "sleeve_type": "long"
+        }
+    },
+
+    // Electronics Products
+    {
+        "spec_id": "67890_BT53",
+        "product_id": 67890,
+        "attributes": {
+            "brand": "Sony",
+            "connection": "Bluetooth 5.3",
+            "battery": "30h",
+            "noise_cancellation": true,
+            "color": "black",
+            "weight": "250g",
+            "warranty": "2 years"
+        }
+    },
+    {
+        "spec_id": "56789_wireless",
+        "product_id": 56789,
+        "attributes": {
+            "brand": "Apple",
+            "connection": "wireless",
+            "battery": "6h + 24h case",
+            "noise_cancellation": true,
+            "color": "white",
+            "weight": "5.4g each",
+            "warranty": "1 year"
+        }
+    },
+    {
+        "spec_id": "78901_55inch",
+        "product_id": 78901,
+        "attributes": {
+            "screen_size": "55 inch",
+            "resolution": "4K Ultra HD",
+            "smart_tv": true,
+            "brand": "Samsung",
+            "hdr": "HDR10+",
+            "refresh_rate": "120Hz",
+            "warranty": "3 years"
+        }
+    },
+    {
+        "spec_id": "78901_65inch",
+        "product_id": 78901,
+        "attributes": {
+            "screen_size": "65 inch",
+            "resolution": "4K Ultra HD",
+            "smart_tv": true,
+            "brand": "Samsung",
+            "hdr": "HDR10+",
+            "refresh_rate": "120Hz",
+            "warranty": "3 years"
+        }
+    },
+    {
+        "spec_id": "89012_4K",
+        "product_id": 89012,
+        "attributes": {
+            "resolution": "4K",
+            "frame_rate": "60fps",
+            "storage": "1TB SSD",
+            "brand": "Sony",
+            "wireless": true,
+            "backward_compatible": true,
+            "warranty": "2 years"
+        }
+    },
+    {
+        "spec_id": "90123_gaming",
+        "product_id": 90123,
+        "attributes": {
+            "material": "PU leather",
+            "color": "black/red",
+            "adjustable_height": true,
+            "lumbar_support": true,
+            "armrests": "4D adjustable",
+            "weight_capacity": "150kg",
+            "warranty": "5 years"
+        }
+    },
+
+    // Home & Decoration Products
+    {
+        "spec_id": "23456_ceramic",
+        "product_id": 23456,
+        "attributes": {
+            "material": "ceramic",
+            "color": "white/gray",
+            "height": "45cm",
+            "diameter": "20cm",
+            "style": "modern",
+            "care_instructions": "hand wash only",
+            "origin": "handcrafted"
+        }
+    }
+]);
+
+print("Product specifications inserted: " + db.product_specs.countDocuments({}));
+
+// Create indexes for product_specs collection
+db.product_specs.createIndex({ "product_id": 1 });
+db.product_specs.createIndex({ "spec_id": 1 }, { unique: true });
+db.product_specs.createIndex({ "attributes.brand": 1 });
+db.product_specs.createIndex({ "attributes.color": 1 });
+
+print("Indexes created for product_specs collection");
+
+// ====================
+// SWITCH TO EVENTS DATABASE
+// ====================
+
+use('ecommerce_events');
+
+// Drop existing collections (optional - uncomment if needed)
+// db.user_events.drop();
+// db.cart_sessions.drop();
+
+// ====================
+// USER EVENTS COLLECTION
+// Collection: user_events
+// ====================
+
+db.user_events.insertMany([
+    // User 1001 Events
+    {
+        "user_id": 1001,
+        "session_id": 100001,
+        "event_type": "view",
+        "product_id": 12345,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:15:00Z"),
+        "page_url": "/products/12345",
+        "referrer": "google.com"
+    },
+    {
+        "user_id": 1001,
+        "session_id": 100001,
+        "event_type": "view",
+        "product_id": 23456,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:20:00Z"),
+        "page_url": "/products/23456",
+        "referrer": null
+    },
+    {
+        "user_id": 1001,
+        "session_id": 100001,
+        "event_type": "add_to_cart",
+        "product_id": 12345,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:25:00Z"),
+        "spec_id": "12345_S_blue",
+        "quantity": 2
+    },
+    {
+        "user_id": 1001,
+        "session_id": 100001,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "ceramic vase",
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:30:00Z"),
+        "results_count": 12
+    },
+
+    // User 1002 Events  
+    {
+        "user_id": 1002,
+        "session_id": 100002,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "bluetooth headphones",
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:20:00Z"),
+        "results_count": 25
+    },
+    {
+        "user_id": 1002,
+        "session_id": 100002,
+        "event_type": "view",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:25:00Z"),
+        "page_url": "/products/67890",
+        "referrer": "/search"
+    },
+    {
+        "user_id": 1002,
+        "session_id": 100002,
+        "event_type": "add_to_cart",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:30:00Z"),
+        "spec_id": "67890_BT53",
+        "quantity": 1
+    },
+    {
+        "user_id": 1002,
+        "session_id": 100002,
+        "event_type": "purchase",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:45:00Z"),
+        "order_id": 20001,
+        "amount": 299.99
+    },
+
+    // User 1003 Events
+    {
+        "user_id": 1003,
+        "session_id": 100003,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "running shoes",
+        "device_type": "tablet",
+        "timestamp": new Date("2025-11-20T10:35:00Z"),
+        "results_count": 42
+    },
+    {
+        "user_id": 1003,
+        "session_id": 100003,
+        "event_type": "view",
+        "product_id": 34567,
+        "search_term": null,
+        "device_type": "tablet",
+        "timestamp": new Date("2025-11-20T10:40:00Z"),
+        "page_url": "/products/34567",
+        "referrer": "/search"
+    },
+    {
+        "user_id": 1003,
+        "session_id": 100003,
+        "event_type": "view",
+        "product_id": 45678,
+        "search_term": null,
+        "device_type": "tablet",
+        "timestamp": new Date("2025-11-20T10:50:00Z"),
+        "page_url": "/products/45678",
+        "referrer": null
+    },
+    {
+        "user_id": 1003,
+        "session_id": 100003,
+        "event_type": "add_to_cart",
+        "product_id": 34567,
+        "search_term": null,
+        "device_type": "tablet",
+        "timestamp": new Date("2025-11-20T11:00:00Z"),
+        "spec_id": "34567_L_red",
+        "quantity": 1
+    },
+
+    // Guest User Events (session-based)
+    {
+        "user_id": null,
+        "session_id": 200001,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "t-shirt",
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T08:35:00Z"),
+        "results_count": 156
+    },
+    {
+        "user_id": null,
+        "session_id": 200001,
+        "event_type": "view",
+        "product_id": 12345,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T08:40:00Z"),
+        "page_url": "/products/12345",
+        "referrer": "/search"
+    },
+    {
+        "user_id": null,
+        "session_id": 200002,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "smart tv",
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T10:05:00Z"),
+        "results_count": 24
+    },
+    {
+        "user_id": null,
+        "session_id": 200002,
+        "event_type": "view",
+        "product_id": 78901,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T10:10:00Z"),
+        "page_url": "/products/78901",
+        "referrer": "/search"
+    },
+
+    // Additional Events for Analytics
+    {
+        "user_id": 1004,
+        "session_id": 100004,
+        "event_type": "view",
+        "product_id": 56789,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T12:00:00Z"),
+        "page_url": "/products/56789",
+        "referrer": "facebook.com"
+    },
+    {
+        "user_id": 1005,
+        "session_id": 100005,
+        "event_type": "click",
+        "product_id": 78901,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T13:30:00Z"),
+        "element": "product_image",
+        "page_url": "/category/electronics"
+    },
+    {
+        "user_id": 1006,
+        "session_id": 100006,
+        "event_type": "view",
+        "product_id": 89012,
+        "search_term": null,
+        "device_type": "smart_tv",
+        "timestamp": new Date("2025-11-20T14:45:00Z"),
+        "page_url": "/products/89012",
+        "referrer": null
+    }
+]);
+
+print("User events inserted: " + db.user_events.countDocuments({}));
+
+// Create indexes for user_events collection
+db.user_events.createIndex({ "user_id": 1, "timestamp": -1 });
+db.user_events.createIndex({ "session_id": 1, "timestamp": -1 });
+db.user_events.createIndex({ "product_id": 1, "event_type": 1 });
+db.user_events.createIndex({ "event_type": 1, "timestamp": -1 });
+db.user_events.createIndex({ "device_type": 1 });
+db.user_events.createIndex({ "timestamp": -1 });
+
+print("Indexes created for user_events collection");
+
+// ====================
+// CART SESSIONS COLLECTION
+// Collection: cart_sessions
+// ====================
+
+db.cart_sessions.insertMany([
+    {
+        "cart_id": 5001,
+        "session_id": 100001,
+        "user_id": 1001,
+        "items": [
+            {
+                "product_id": 12345,
+                "spec_id": "12345_S_blue",
+                "quantity": 2,
+                "added_at": new Date("2025-11-20T08:25:00Z"),
+                "price_at_add": 29.99
+            },
+            {
+                "product_id": 23456,
+                "spec_id": "23456_ceramic",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T08:35:00Z"),
+                "price_at_add": 89.99
+            }
+        ],
+        "created_at": new Date("2025-11-20T08:25:00Z"),
+        "last_updated": new Date("2025-11-20T08:35:00Z"),
+        "is_converted_to_order": false,
+        "order_id": null,
+        "device_type": "desktop",
+        "total_value": 149.97,
+        "currency": "USD"
+    },
+    {
+        "cart_id": 5002,
+        "session_id": 100002,
+        "user_id": 1002,
+        "items": [
+            {
+                "product_id": 67890,
+                "spec_id": "67890_BT53",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T09:30:00Z"),
+                "price_at_add": 299.99
+            }
+        ],
+        "created_at": new Date("2025-11-20T09:30:00Z"),
+        "last_updated": new Date("2025-11-20T09:30:00Z"),
+        "is_converted_to_order": true,
+        "order_id": 20001,
+        "device_type": "mobile",
+        "total_value": 299.99,
+        "currency": "USD",
+        "converted_at": new Date("2025-11-20T09:45:00Z")
+    },
+    {
+        "cart_id": 5003,
+        "session_id": 100003,
+        "user_id": 1003,
+        "items": [
+            {
+                "product_id": 34567,
+                "spec_id": "34567_L_red",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T11:00:00Z"),
+                "price_at_add": 129.99
+            },
+            {
+                "product_id": 45678,
+                "spec_id": "45678_XL_black",
+                "quantity": 2,
+                "added_at": new Date("2025-11-20T11:30:00Z"),
+                "price_at_add": 45.99
+            }
+        ],
+        "created_at": new Date("2025-11-20T11:00:00Z"),
+        "last_updated": new Date("2025-11-20T11:30:00Z"),
+        "is_converted_to_order": false,
+        "order_id": null,
+        "device_type": "tablet",
+        "total_value": 221.97,
+        "currency": "USD"
+    },
+    {
+        "cart_id": 6001,
+        "session_id": 200001,
+        "user_id": null,
+        "items": [
+            {
+                "product_id": 12345,
+                "spec_id": "12345_L_black",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T08:45:00Z"),
+                "price_at_add": 29.99
+            }
+        ],
+        "created_at": new Date("2025-11-20T08:45:00Z"),
+        "last_updated": new Date("2025-11-20T08:45:00Z"),
+        "is_converted_to_order": false,
+        "order_id": null,
+        "device_type": "mobile",
+        "total_value": 29.99,
+        "currency": "USD"
+    },
+    {
+        "cart_id": 6002,
+        "session_id": 200002,
+        "user_id": null,
+        "items": [
+            {
+                "product_id": 67890,
+                "spec_id": "67890_BT53",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T10:15:00Z"),
+                "price_at_add": 299.99
+            },
+            {
+                "product_id": 23456,
+                "spec_id": "23456_ceramic",
+                "quantity": 1,
+                "added_at": new Date("2025-11-20T10:25:00Z"),
+                "price_at_add": 89.99
+            }
+        ],
+        "created_at": new Date("2025-11-20T10:15:00Z"),
+        "last_updated": new Date("2025-11-20T10:25:00Z"),
+        "is_converted_to_order": false,
+        "order_id": null,
+        "device_type": "desktop",
+        "total_value": 389.98,
+        "currency": "USD"
+    }
+]);
+
+print("Cart sessions inserted: " + db.cart_sessions.countDocuments({}));
+
+// Create indexes for cart_sessions collection
+db.cart_sessions.createIndex({ "cart_id": 1 }, { unique: true });
+db.cart_sessions.createIndex({ "session_id": 1 });
+db.cart_sessions.createIndex({ "user_id": 1 });
+db.cart_sessions.createIndex({ "is_converted_to_order": 1, "created_at": -1 });
+db.cart_sessions.createIndex({ "created_at": -1 });
+db.cart_sessions.createIndex({ "last_updated": -1 });
+
+print("Indexes created for cart_sessions collection");
+
+// ====================
+// AGGREGATION EXAMPLES AND VIEWS
+// ====================
+
+// Create view for popular products
+db.createView("popular_products", "user_events", [
+    { $match: { "event_type": "view" } },
+    { $group: {
+        _id: "$product_id",
+        view_count: { $sum: 1 },
+        unique_users: { $addToSet: "$user_id" },
+        last_viewed: { $max: "$timestamp" }
+    }},
+    { $addFields: {
+        unique_user_count: { $size: "$unique_users" }
+    }},
+    { $project: {
+        product_id: "$_id",
+        view_count: 1,
+        unique_user_count: 1,
+        last_viewed: 1,
+        _id: 0
+    }},
+    { $sort: { view_count: -1 } }
+]);
+
+// Create view for conversion funnel
+db.createView("conversion_funnel", "cart_sessions", [
+    { $group: {
+        _id: null,
+        total_carts: { $sum: 1 },
+        converted_carts: { $sum: { $cond: ["$is_converted_to_order", 1, 0] } },
+        total_cart_value: { $sum: "$total_value" },
+        converted_value: { 
+            $sum: { 
+                $cond: ["$is_converted_to_order", "$total_value", 0] 
+            }
+        }
+    }},
+    { $project: {
+        _id: 0,
+        total_carts: 1,
+        converted_carts: 1,
+        conversion_rate: { 
+            $divide: ["$converted_carts", "$total_carts"] 
+        },
+        total_cart_value: 1,
+        converted_value: 1,
+        value_conversion_rate: {
+            $divide: ["$converted_value", "$total_cart_value"]
+        }
+    }}
+]);
+
+// ====================
+// VERIFICATION QUERIES
+// ====================
+
+print("=== DATABASE SUMMARY ===");
+print("Product Specs Count: " + db.runCommand("collStats", {"collection": "product_specs", "count": 1}).count);
+print("User Events Count: " + db.user_events.countDocuments({}));
+print("Cart Sessions Count: " + db.cart_sessions.countDocuments({}));
+
+print("\n=== SAMPLE QUERIES ===");
+print("Sample Product Spec:");
+printjson(db.product_specs.findOne({"product_id": 12345}));
+
+print("\nRecent User Events (last 5):");
+db.user_events.find({}).sort({"timestamp": -1}).limit(5).forEach(printjson);
+
+print("\nActive Cart Sessions:");
+db.cart_sessions.find({"is_converted_to_order": false}).forEach(printjson);
+
+print("\nConversion Statistics:");
+db.conversion_funnel.find({}).forEach(printjson);
+
+print("\n=== INDEXES CREATED ===");
+print("product_specs indexes:");
+printjson(db.product_specs.getIndexes());
+
+print("user_events indexes:");
+printjson(db.user_events.getIndexes());
+
+print("cart_sessions indexes:");
+printjson(db.cart_sessions.getIndexes());

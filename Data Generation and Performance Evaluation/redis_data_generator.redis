@@ -1,0 +1,143 @@
+# Redis Data Generator for E-Commerce Database
+# Based on database_design.md specifications
+# Compatible with DataGrip Redis Console
+
+# Switch to ecommerce dedicated database (ID: 1)
+SELECT 1
+
+# Clear existing data (optional - uncomment if needed)
+# FLUSHDB
+
+# ====================
+# SESSION DATA GENERATION
+# Pattern: session:{session_id}
+# ====================
+
+# Sessions 1-50 (User Sessions)
+JSON.SET session:100001 $ '{"device_type":"desktop","user_id":1001,"created_at":"2025-11-20T08:00:00Z","last_activity":"2025-11-20T10:30:00Z"}'
+EXPIRE session:100001 7200
+JSON.SET session:100002 $ '{"device_type":"mobile","user_id":1002,"created_at":"2025-11-20T09:15:00Z","last_activity":"2025-11-20T11:45:00Z"}'
+EXPIRE session:100002 7200
+JSON.SET session:100003 $ '{"device_type":"tablet","user_id":1003,"created_at":"2025-11-20T10:30:00Z","last_activity":"2025-11-20T12:15:00Z"}'
+EXPIRE session:100003 7200
+JSON.SET session:100004 $ '{"device_type":"desktop","user_id":1004,"created_at":"2025-11-20T11:45:00Z","last_activity":"2025-11-20T14:20:00Z"}'
+EXPIRE session:100004 7200
+JSON.SET session:100005 $ '{"device_type":"mobile","user_id":1005,"created_at":"2025-11-20T13:00:00Z","last_activity":"2025-11-20T15:30:00Z"}'
+EXPIRE session:100005 7200
+JSON.SET session:100006 $ '{"device_type":"smart_tv","user_id":1006,"created_at":"2025-11-20T14:15:00Z","last_activity":"2025-11-20T16:45:00Z"}'
+EXPIRE session:100006 7200
+JSON.SET session:100007 $ '{"device_type":"tablet","user_id":1007,"created_at":"2025-11-20T15:30:00Z","last_activity":"2025-11-20T17:00:00Z"}'
+EXPIRE session:100007 7200
+JSON.SET session:100008 $ '{"device_type":"desktop","user_id":1008,"created_at":"2025-11-20T16:45:00Z","last_activity":"2025-11-20T19:15:00Z"}'
+EXPIRE session:100008 7200
+JSON.SET session:100009 $ '{"device_type":"mobile","user_id":1009,"created_at":"2025-11-20T18:00:00Z","last_activity":"2025-11-20T20:30:00Z"}'
+EXPIRE session:100009 7200
+JSON.SET session:100010 $ '{"device_type":"tablet","user_id":1010,"created_at":"2025-11-20T19:15:00Z","last_activity":"2025-11-20T21:45:00Z"}'
+EXPIRE session:100010 7200
+
+# Guest Sessions (no user_id)
+JSON.SET session:200001 $ '{"device_type":"mobile","user_id":null,"created_at":"2025-11-20T08:30:00Z","last_activity":"2025-11-20T09:15:00Z"}'
+EXPIRE session:200001 3600
+JSON.SET session:200002 $ '{"device_type":"desktop","user_id":null,"created_at":"2025-11-20T10:00:00Z","last_activity":"2025-11-20T10:45:00Z"}'
+EXPIRE session:200002 3600
+JSON.SET session:200003 $ '{"device_type":"tablet","user_id":null,"created_at":"2025-11-20T12:15:00Z","last_activity":"2025-11-20T13:00:00Z"}'
+EXPIRE session:200003 3600
+JSON.SET session:200004 $ '{"device_type":"mobile","user_id":null,"created_at":"2025-11-20T14:30:00Z","last_activity":"2025-11-20T15:15:00Z"}'
+EXPIRE session:200004 3600
+JSON.SET session:200005 $ '{"device_type":"smart_tv","user_id":null,"created_at":"2025-11-20T16:45:00Z","last_activity":"2025-11-20T17:30:00Z"}'
+EXPIRE session:200005 3600
+
+# ====================
+# SHOPPING CART DATA GENERATION
+# Pattern: cart:user:{user_id} or cart:{session_id}
+# ====================
+
+# User Carts (logged-in users)
+JSON.SET cart:user:1001 $ '{"cart_id":5001,"items":[{"product_id":12345,"spec_id":"12345_S_blue","quantity":2},{"product_id":23456,"spec_id":"23456_ceramic","quantity":1}],"total_items":3,"updated_at":"2025-11-20T10:30:00Z"}'
+EXPIRE cart:user:1001 86400
+JSON.SET cart:user:1002 $ '{"cart_id":5002,"items":[{"product_id":67890,"spec_id":"67890_BT53","quantity":1}],"total_items":1,"updated_at":"2025-11-20T11:45:00Z"}'
+EXPIRE cart:user:1002 86400
+JSON.SET cart:user:1003 $ '{"cart_id":5003,"items":[{"product_id":34567,"spec_id":"34567_L_red","quantity":1},{"product_id":45678,"spec_id":"45678_XL_black","quantity":2}],"total_items":3,"updated_at":"2025-11-20T12:15:00Z"}'
+EXPIRE cart:user:1003 86400
+JSON.SET cart:user:1004 $ '{"cart_id":5004,"items":[{"product_id":56789,"spec_id":"56789_wireless","quantity":1}],"total_items":1,"updated_at":"2025-11-20T14:20:00Z"}'
+EXPIRE cart:user:1004 86400
+JSON.SET cart:user:1005 $ '{"cart_id":5005,"items":[{"product_id":12345,"spec_id":"12345_M_green","quantity":1},{"product_id":23456,"spec_id":"23456_ceramic","quantity":2},{"product_id":78901,"spec_id":"78901_55inch","quantity":1}],"total_items":4,"updated_at":"2025-11-20T15:30:00Z"}'
+EXPIRE cart:user:1005 86400
+JSON.SET cart:user:1006 $ '{"cart_id":5006,"items":[{"product_id":89012,"spec_id":"89012_4K","quantity":1}],"total_items":1,"updated_at":"2025-11-20T16:45:00Z"}'
+EXPIRE cart:user:1006 86400
+JSON.SET cart:user:1007 $ '{"cart_id":5007,"items":[{"product_id":67890,"spec_id":"67890_BT53","quantity":2},{"product_id":90123,"spec_id":"90123_gaming","quantity":1}],"total_items":3,"updated_at":"2025-11-20T17:00:00Z"}'
+EXPIRE cart:user:1007 86400
+JSON.SET cart:user:1008 $ '{"cart_id":5008,"items":[{"product_id":34567,"spec_id":"34567_S_white","quantity":3}],"total_items":3,"updated_at":"2025-11-20T19:15:00Z"}'
+EXPIRE cart:user:1008 86400
+JSON.SET cart:user:1009 $ '{"cart_id":5009,"items":[{"product_id":45678,"spec_id":"45678_M_blue","quantity":1},{"product_id":56789,"spec_id":"56789_wireless","quantity":1}],"total_items":2,"updated_at":"2025-11-20T20:30:00Z"}'
+EXPIRE cart:user:1009 86400
+JSON.SET cart:user:1010 $ '{"cart_id":5010,"items":[{"product_id":78901,"spec_id":"78901_65inch","quantity":1}],"total_items":1,"updated_at":"2025-11-20T21:45:00Z"}'
+EXPIRE cart:user:1010 86400
+
+# Guest Carts (session-based)
+JSON.SET cart:200001 $ '{"cart_id":6001,"items":[{"product_id":12345,"spec_id":"12345_L_black","quantity":1}],"total_items":1,"updated_at":"2025-11-20T09:15:00Z"}'
+EXPIRE cart:200001 7200
+JSON.SET cart:200002 $ '{"cart_id":6002,"items":[{"product_id":67890,"spec_id":"67890_BT53","quantity":1},{"product_id":23456,"spec_id":"23456_ceramic","quantity":1}],"total_items":2,"updated_at":"2025-11-20T10:45:00Z"}'
+EXPIRE cart:200002 7200
+JSON.SET cart:200003 $ '{"cart_id":6003,"items":[{"product_id":34567,"spec_id":"34567_XL_red","quantity":2}],"total_items":2,"updated_at":"2025-11-20T13:00:00Z"}'
+EXPIRE cart:200003 7200
+JSON.SET cart:200004 $ '{"cart_id":6004,"items":[{"product_id":45678,"spec_id":"45678_S_green","quantity":1}],"total_items":1,"updated_at":"2025-11-20T15:15:00Z"}'
+EXPIRE cart:200004 7200
+JSON.SET cart:200005 $ '{"cart_id":6005,"items":[{"product_id":89012,"spec_id":"89012_4K","quantity":1}],"total_items":1,"updated_at":"2025-11-20T17:30:00Z"}'
+EXPIRE cart:200005 7200
+
+# ====================
+# ADDITIONAL SESSION DATA
+# More sessions to simulate realistic load
+# ====================
+
+JSON.SET session:100011 $ '{"device_type":"desktop","user_id":1011,"created_at":"2025-11-20T20:00:00Z","last_activity":"2025-11-20T22:30:00Z"}'
+EXPIRE session:100011 7200
+JSON.SET session:100012 $ '{"device_type":"mobile","user_id":1012,"created_at":"2025-11-20T21:15:00Z","last_activity":"2025-11-20T23:45:00Z"}'
+EXPIRE session:100012 7200
+JSON.SET session:100013 $ '{"device_type":"tablet","user_id":1013,"created_at":"2025-11-20T22:30:00Z","last_activity":"2025-11-21T00:15:00Z"}'
+EXPIRE session:100013 7200
+
+# Additional Guest Sessions
+JSON.SET session:200006 $ '{"device_type":"desktop","user_id":null,"created_at":"2025-11-20T18:00:00Z","last_activity":"2025-11-20T18:45:00Z"}'
+EXPIRE session:200006 3600
+JSON.SET session:200007 $ '{"device_type":"mobile","user_id":null,"created_at":"2025-11-20T19:30:00Z","last_activity":"2025-11-20T20:15:00Z"}'
+EXPIRE session:200007 3600
+JSON.SET session:200008 $ '{"device_type":"tablet","user_id":null,"created_at":"2025-11-20T20:45:00Z","last_activity":"2025-11-20T21:30:00Z"}'
+EXPIRE session:200008 3600
+
+# ====================
+# ADDITIONAL CART DATA
+# More cart examples for testing
+# ====================
+
+JSON.SET cart:user:1011 $ '{"cart_id":5011,"items":[{"product_id":89012,"spec_id":"89012_4K","quantity":1}],"total_items":1,"updated_at":"2025-11-20T22:30:00Z"}'
+EXPIRE cart:user:1011 86400
+JSON.SET cart:user:1012 $ '{"cart_id":5012,"items":[{"product_id":90123,"spec_id":"90123_gaming","quantity":1},{"product_id":67890,"spec_id":"67890_BT53","quantity":1}],"total_items":2,"updated_at":"2025-11-20T23:45:00Z"}'
+EXPIRE cart:user:1012 86400
+JSON.SET cart:user:1013 $ '{"cart_id":5013,"items":[{"product_id":34567,"spec_id":"34567_L_red","quantity":2}],"total_items":2,"updated_at":"2025-11-21T00:15:00Z"}'
+EXPIRE cart:user:1013 86400
+
+# Additional Guest Carts
+JSON.SET cart:200006 $ '{"cart_id":6006,"items":[{"product_id":45678,"spec_id":"45678_M_blue","quantity":1}],"total_items":1,"updated_at":"2025-11-20T18:45:00Z"}'
+EXPIRE cart:200006 7200
+JSON.SET cart:200007 $ '{"cart_id":6007,"items":[{"product_id":78901,"spec_id":"78901_65inch","quantity":1}],"total_items":1,"updated_at":"2025-11-20T20:15:00Z"}'
+EXPIRE cart:200007 7200
+JSON.SET cart:200008 $ '{"cart_id":6008,"items":[{"product_id":56789,"spec_id":"56789_wireless","quantity":2}],"total_items":2,"updated_at":"2025-11-20T21:30:00Z"}'
+EXPIRE cart:200008 7200
+
+# ====================
+# VERIFICATION AND STATS
+# ====================
+
+# Display total keys created
+INFO keyspace
+DBSIZE
+
+# Sample key verification
+EXISTS session:100001
+EXISTS cart:user:1001
+
+# Sample data retrieval tests
+JSON.GET session:100001
+JSON.GET cart:user:1001 $.items[0]

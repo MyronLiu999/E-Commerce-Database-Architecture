@@ -3,174 +3,124 @@
 ## Relational (MySQL)
 
 ### User
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Its schema is fixed and structured (e.g., email, first_name, phone_number), which aligns with SQL’s predefined table design to avoid redundancy and ensure efficient storage.
+- **Schema:** PK: `user_id` | Attributes: `email`, `first_name`, `last_name`, `phone_number`, `password_hash` | FK: `address_id` → Address
+- **Reason:** Fixed structured fields (email, names, phone) align with SQL's predefined schema for efficient storage and validation.
 
 ### Address/City/State/Country
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Address has consistent structured fields (street, zip_code, city_id, state_id, country_id) that match SQL’s rigid schema requirement, ensuring data uniformity
+- **Address:** PK: `address_id` | Attributes: `address_type`, `zip_code`, `street_line` | FK: `city_id` → City
+- **City:** PK: `city_id` | Attributes: `city_name` | FK: `state_id` → State  
+- **State:** PK: `state_id` | Attributes: `state_name`, `tax_rate` | FK: `country_id` → Country
+- **Country:** PK: `country_id` | Attributes: `country_name`
+- **Reason:** Hierarchical geographic structure with consistent fields matching SQL's rigid schema requirements.
 
 ### Order
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Involves transaction-critical workflows (order creation, inventory deduction, payment recording) that require SQL’s ACID compliance to ensure atomicity (all steps succeed or fail together).
+- **Schema:** PK: `order_id` | Attributes: `order_status`, `check_out_timestamp`, `session_id`, `cart_id` | FK: `user_id` → User, `payment_id` → Payment
+- **Reason:** Transaction-critical workflows requiring ACID compliance. Enhanced with session_id/cart_id for conversion analysis.
 
 ### OrderProduct
-- **Database:** MySQL
-- **Type:** Relational
+- **Schema:** PK: `order_product_id` | Attributes: `quantity`, `order_product_subtotal`, `order_product_status` | FK: `product_id` → Product, `shipping_id` → Shipping, `order_id` → Order
 - **Reason:** Uses composite foreign keys (order_id → Order.order_id, product_id → Product.product_id) to enforce data validity, ensuring no order items reference non-existent orders or products. Supports efficient cross-table aggregation (e.g., calculating total items per order) via SQL’s JOIN and GROUP BY clauses.
 
+
 ### Payment
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Requires strict data consistency for financial records (e.g., payment amount, transaction status), which SQL’s transactions guarantee to avoid discrepancies (e.g., missing payments for orders).
+- **Schema:** PK: `payment_id` | Attributes: `payment_method`, `amount`, `payment_timestamp`, `payment_status`
+- **Reason:** Financial data requiring strict consistency and ACID transactions to prevent payment discrepancies.
 
 ### Shipping/ShippingMethod
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Features structured status and logistics fields (shipping_method, delivery_timestamp) that benefit from SQL’s index support for fast status queries (e.g., tracking all pending shipments).
+- **Shipping:** PK: `shipping_id` | Attributes: `delivery_timestamp` | FK: `shipping_method_id` → ShippingMethod, `address_id` → Address
+- **ShippingMethod:** PK: `shipping_method_id` | Attributes: `method_name`, `base_cost`
+- **Reason:** Structured logistics fields benefiting from SQL indexing for fast status tracking queries.
 
 
 ### Return
-- **Database:** MySQL
-- **Type:** Relational
-- **Reason:** Has fixed structure requiring consistent joins and transactional integrity that benefit from SQL’s index support for fast status queries.
+- **Schema:** PK: `return_id` | Attributes: `return_status`, `return_requested_time`, `exp_return_time`, `return_amount`, `return_fee` | FK: `order_product_id` → OrderProduct, `shipping_id` → Shipping
+- **Reason:** Fixed structure requiring consistent joins and transactional integrity for return processing.
+
+### Product
+- **Schema:** PK: `product_id` | Attributes: `product_name`, `price`, `category`
+- **Reason:** Core product attributes requiring consistency for inventory management and order processing.
+
+### Inventory
+- **Schema:** PK: `spec_id` | Attributes: `quantity` | FK: `product_id` → Product
+- **Reason:** ACID transactions required to prevent overselling during concurrent inventory operations.
 
 ## Non-Relational
 
-### Product Catalog
+### Product Catalog & Inventory
 - **Database:** MongoDB + MySQL (Hybrid)
 - **Type:** Document Store + Relational
 - **Reason:** 
-  - MySQL stores core product attributes (id, name, price, category, inventory) that need consistency
+  - MySQL stores core product data (Product table) and inventory tracking (Inventory table: spec_id PK, product_id FK, quantity) for consistency
   - MongoDB stores flexible, category-specific attributes (size, color, material) that vary by product type
-  - Contain some AI generated data in this part
-**Database name:** `ecommerce_catalog`  
-**Collection:** `product_attributes`
+- **MySQL Tables:** `product`, `inventory (spec_id, product_id, quantity)` 
+- **MongoDB Database:** `ecommerce_catalog`  
+- **MongoDB Collection:** `product_specs`
 
 ```json
-[{
-  "product_id": "P12345",
-  "category": "fashion",
-  "attributes": {
-    "size": ["S", "M", "L"],
-    "color": ["blue", "black"],
-    "material": "cotton",
-    "kind": "sweater"
+[
+  {
+    "spec_id": "12345_S_blue",
+    "product_id": 12345,
+    "attributes": {"size": "S", "color": "blue", "material": "cotton"}
   },
-  "last_updated": "2025-11-25T17:00:00Z"
-},
-{
-  "product_id": "D67890",
-  "category": "headphone",
-  "attributes": {
-    "brand": "Sony",
-    "model": "WH-1000XM6",
-    "connection": ["Bluetooth 5.3", "Bluetooth 5.2"],
-    "battery_life": ["30 hours", "20 hours"],
-    "charging_method": ["USB-C"],
-    "weight": "100g"
+  {
+    "spec_id": "67890_BT53",
+    "product_id": 67890, 
+    "attributes": {"brand": "Sony", "connection": "Bluetooth 5.3", "battery": "30h"}
   },
-  "last_updated": "2025-11-26T10:30:00Z"
-},
-{
-  "product_id": "H23456",
-  "category": "vase",
-  "attributes": {
-    "style": "Nordic minimalist",
-    "material": ["ceramic base", "linen lampshade"],
-    "size": {
-      "height": "45cm",
-      "base_diameter": "15cm",
-      "shade_diameter": "25cm"
-    },
-    "color": ["white base + gray shade", "beige base + white shade"],
-  },
-  "last_updated": "2025-11-27T14:15:00Z"
-}]
-```
-
-
-### Product Inventory
-- **Database:** MongoDB
-- **Type:** Document Store
-- **Reason:** 
-  - MongoDB stores flexible, category-specific attributes (size, color, material) that vary by product type
-  - Contain some AI generated data in this part
-**Database name:** `ecommerce_catalog_inventory`  
-**Collection:** `product_attributes`
-
-```json
-[{
-  "product_id": "P12345",
-  "category": "fashion",
-  "attributes": {
-    "size": "S",
-    "color": "blue",
-    "material": "cotton",
-    "kind": "sweater"
-  },
-},
-{
-  "product_id": "P12345",
-  "category": "fashion",
-  "attributes": {
-    "size": "L",
-    "color": "black",
-    "material": "cotton",
-    "kind": "sweater"
-  },
-},
-{
-  "product_id": "D67890",
-  "category": "headphone",
-  "attributes": {
-    "brand": "Sony",
-    "model": "WH-1000XM6",
-    "connection": "Bluetooth 5.3",
-    "battery_life": "30 hours",
-    "charging_method": "USB-C",
-    "weight": "100g"
-  },
-},
-{
-  "product_id": "H23456",
-  "category": "vase",
-  "attributes": {
-    "style": "Nordic minimalist",
-    "material": "ceramic base",
-    "size": {
-      "height": "45cm",
-      "base_diameter": "15cm",
-      "shade_diameter": "25cm"
-    },
-    "color": "white base + gray shade",
-  },
-}]
+  {
+    "spec_id": "23456_ceramic",
+    "product_id": 23456,
+    "attributes": {"material": "ceramic", "color": "white/gray", "height": "45cm"}
+  }
+]
 ```
 
 
 ### Shopping Cart
-- **Database:** Redis
-- **Type:** Key-Value Store (Non-relational)
-- **Reason:** Carts require extremely fast reads/writes, TTL expiration, and simple key-based lookup.
+- **Database:** Redis + MongoDB (Hybrid)
+- **Type:** Key-Value Store + Document Store
+- **Reason:** 
+  - Redis handles real-time session/cart operations for speed
+  - MongoDB stores cart sessions for global analytics and conversion tracking
 
-**Key:** `cart:{session_id}` or `cart:user:{user_id}`
+**Redis Key:** for guest users: `cart:{session_id}` or for logged-in users: `cart:user:{user_id}`
 
 ```json
 {
-  "cart_id": "CART_8888",
+  "cart_id": 8888,
   "items": [
     {
-      "product_id": "P12345",
-      "spec_id": "S_black",          // Specific attributes
+      "product_id": 12345,
+      "spec_id": "67890_BT53",
       "quantity": 2          
     }
   ],
   "total_items": 2,
   "updated_at": "2025-11-25T16:40:00Z"
+}
+```
+
+**MongoDB Database:** `ecommerce_events`  
+**MongoDB Collection:** `cart_sessions`
+
+```json
+{
+  "cart_id": 8888,
+  "session_id": 123456,
+  "user_id": 123,
+  "items": [
+    {
+      "product_id": 12345,
+      "spec_id": "12345_S_black",
+      "quantity": 2,
+      "added_at": "2025-11-25T16:40:00Z"
+    }
+  ],
+  "created_at": "2025-11-25T16:00:00Z",
+  "last_updated": "2025-11-25T16:40:00Z",
+  "is_converted_to_order": false,
+  "order_id": null
 }
 ```
 
@@ -185,7 +135,7 @@
 ```json
 {
   "device_type": "desktop",
-  "user_id": "U123",
+  "user_id": 123,
   "created_at": "2025-11-25T15:00:00Z",
   "last_activity": "2025-11-25T16:55:00Z"
 }
@@ -202,10 +152,10 @@
 
 ```json
 {
-  "user_id": "U123",
-  "session_id": "S_abc123",
+  "user_id": 123,
+  "session_id": 123456,
   "event_type": "view",
-  "product_id": "P12345",
+  "product_id": 12345,
   "search_term": null,
   "device_type": "mobile",
   "timestamp": "2025-11-25T16:10:00Z"
@@ -214,10 +164,38 @@
 
 **Note:** Event types include: `view`, `click`, `search`, `add_to_cart`, `purchase`
 
+### Cart Analytics
+- **Database:** MongoDB
+- **Type:** Document Store  
+- **Reason:** Tracks cart sessions for conversion analysis and global shopping behavior statistics
+
+**Database name:** `ecommerce_events`  
+**Collection:** `cart_sessions`
+
+```json
+{
+  "cart_id": 8888,
+  "session_id": 123456, 
+  "user_id": 123,
+  "items": [
+    {
+      "product_id": 12345,
+      "spec_id": "12345_S_black",
+      "quantity": 2,
+      "added_at": "2025-11-25T16:40:00Z"
+    }
+  ],
+  "created_at": "2025-11-25T16:00:00Z",
+  "last_updated": "2025-11-25T16:40:00Z", 
+  "is_converted_to_order": false,
+  "order_id": null
+}
+```
+
 
 
 # Q2 ERD
-![Database diagram](db_design_SQL_Nov29_version5.png)
+![Database diagram](db_design_SQL_Dec01_version6.png)
 
 # Q3
 I keep a small Product table in MySQL for attributes that are common to all products (product_id, name, price, category, etc.), and then store the category-specific attributes in a document store like MongoDB. In addition, we introduced 'spec_id' to distinguish different attributes of products
@@ -266,15 +244,44 @@ If someone adds items as a **guest** and then logs in:
 4. The merged cart becomes the new "official" cart for that user.
 
 # Q5
-1. order_product_subtotal: I defined this part be the sum of product amount and tax. They are computed and stored together each time instead of store them separately, which can reduce the rlationships and raise overall efficiency.
-2. amount: I define this part be product amount + shipping fee + tax for the same reason.
-3. spec_id: in Shopping Cart database, I defined a variable called "spec_id", which contains many information about variable attributes of a specific product. It can reduce the connection when we want to access product in shopping cart.
+## Denormalization for Performance: Order Totals
+
+I denormalized the Order / OrderProduct tables by storing pre-computed totals:
+
+- `order_product_subtotal` on OrderProduct
+- `order_total` on Order
+
+These values can be derived from normalized fields (unit_price, quantity, tax, shipping), but storing them improves performance.
+
+### Why Denormalize
+
+Order pages are read far more often than orders are written.
+Pre-computing totals avoids repeated JOINs and aggregations each time an order is viewed, giving much faster reads.
+
+### Trade-offs
+
+**Read Benefits**
+- O(1) access to totals
+- No re-aggregation or per-line calculations
+- Faster reporting and order history queries
+
+**Write/Consistency Costs**
+- Totals must be updated atomically during checkout
+- Risk of inconsistency if computations fail
+- Updates are more complex if line items change
+
+**Storage Costs**
+- Some redundant data is stored
+
+### Mitigation
+
+Use transactions during checkout and periodic validation jobs to ensure totals stay consistent.
 
 # Q6
 ## Data Flow Between Databases
 
 ### Flow 1: MySQL --> MongoDB (Product Catalog Sync)
-- **What flows:** Basic product info (id, name, price, category) and inventory levels are copied from MySQL into MongoDB for flexible attributes like sizes, colors, materials.
+- **What flows:** Basic product info (id, name, price, category) are copied from MySQL into MongoDB for flexible attributes like sizes, colors, materials.
 - **Freshness:** Synced every 2–5 minutes. Small delays are acceptable.
 - **Fallback:** If MongoDB is down, basic product data still available from MySQL.
 
@@ -284,16 +291,27 @@ If someone adds items as a **guest** and then logs in:
 - **Fallback:** If MongoDB unavailable, events can be safely dropped. Shopping still works via MySQL.
 
 ### Flow 3: Frontend --> Redis (Sessions and Carts)
-- **What flows:** Session data (`session_id`, `user_id`) and shopping cart items (`product_id`, `quantity`).
+- **What flows:** Session data (`session_id`, `user_id`) and shopping cart items for real-time operations
 - **Freshness:** Real-time (milliseconds). Users must see cart changes immediately.
-- **Fallback:** If Redis restarts, logged-in users can recover cart from MySQL snapshots.
+- **Fallback:** If Redis restarts, session data lost but can be recovered from MongoDB cart analytics or rebuilt from user behavior.
 
-### Flow 4: Redis --> MySQL (Checkout and Cart Snapshots)
-- **What flows:** Cart data written to MySQL as permanent Order/OrderItem/Payment records during checkout. Periodic snapshots save abandoned carts.
-- **Freshness:** Checkout writes are immediate. Snapshots every 10–30 minutes.
+### Flow 4: Redis --> MongoDB (Cart Analytics Tracking)
+- **What flows:** Cart session data from Redis to MongoDB's `cart_sessions` collection for analytics
+- **Timing:** 
+  - Cart create/update → upsert MongoDB cart_sessions (is_converted_to_order=false)
+  - User activity tracking for conversion analysis
+- **Freshness:** Near real-time (within seconds of cart changes)
+- **Fallback:** If MongoDB unavailable, Redis continues operating. Analytics data can be backfilled later.
+
+### Flow 5: Redis --> MySQL (Checkout and Cart Conversion Tracking)
+- **What flows:** 
+  - Cart data written to MySQL as permanent Order/OrderItem/Payment records during checkout
+  - Order table enhanced with session_id/cart_id for conversion analysis
+  - MongoDB cart_sessions updated: is_converted_to_order=true, order_id=new_order_id
+- **Freshness:** Checkout writes are immediate.
 - **Fallback:** If snapshot fails, Redis holds recent cart. Orders and accounts remain safe.
 
-### Flow 5: MongoDB --> MySQL (Reporting Tables)
+### Flow 6: MongoDB --> MySQL (Reporting Tables)
 - **What flows:** Aggregated metrics (daily views, search counts, user activity) from MongoDB `user_events` into MySQL reporting tables.
 - **Freshness:** Updated hourly or nightly.
 - **Fallback:** If batch job fails, older summary data remains. Core shopping functions unaffected.
@@ -319,7 +337,7 @@ If someone adds items as a **guest** and then logs in:
 
 **Fix:**
 - Add TTL to sessions and carts
-- Save carts to MySQL during checkout or using periodic snapshots
+- Save carts to MySQL during checkout
 - Treat Redis as a cache, not permanent storage
 
 ### 3. MongoDB Schema Drift
@@ -349,10 +367,10 @@ I will use **MongoDB** to add a separate behavior-tracking layer alongside the n
 
 ```json
 {
-  "user_id": "U123",
-  "session_id": "S_abc123",
+  "user_id": 123,
+  "session_id": 123456,
   "event_type": "view",
-  "product_id": "P12345",
+  "product_id": 12345,
   "timestamp": "2025-11-25T16:10:00Z"
 }
 ```
@@ -374,7 +392,7 @@ Redis is used like a fast lookup table to enrich the event before saving it.
 
 **Example:**
 
-User performs: "view product P12345"
+User performs: "view product 12345"
 
 Backend process:
 1. Check Redis: "which user/session did this come from?"
@@ -382,10 +400,10 @@ Backend process:
 
 ```json
 {
-  "user_id": "U123",
-  "session_id": "S_abc123",
+  "user_id": 123,
+  "session_id": 123456,
   "event_type": "view",
-  "product_id": "P12345",
+  "product_id": 12345,
   "timestamp": "2025-11-25T16:10:00Z"
 }
 ```
