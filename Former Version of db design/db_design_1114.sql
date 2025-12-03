@@ -115,6 +115,7 @@ CREATE TABLE Return (
     return_requested_time DATETIME NOT NULL,
     exp_return_time DATETIME,
     return_amount DECIMAL(10, 2) NOT NULL,
+    return_fee DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_product_id) REFERENCES OrderProduct(order_product_id),
     FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id)
 );
