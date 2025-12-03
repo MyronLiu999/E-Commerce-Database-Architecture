@@ -65,7 +65,7 @@ CREATE TABLE Payment (
 );
 
 -- Order Table
-CREATE TABLE Order (
+CREATE TABLE `Order` (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     order_status TINYINT NOT NULL COMMENT '0-Ppdaid/1-Paid/2-Send/3-Close',
@@ -103,11 +103,11 @@ CREATE TABLE OrderProduct (
     order_id INT NOT NULL,
     FOREIGN KEY (product_id) REFERENCES Product(product_id),
     FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id),
-    FOREIGN KEY (order_id) REFERENCES Order(order_id)
+    FOREIGN KEY (order_id) REFERENCES `Order`(order_id)
 );
 
 -- Return Product Table
-CREATE TABLE 'Return' (
+CREATE TABLE Return (
     return_id INT AUTO_INCREMENT PRIMARY KEY,
     order_product_id INT NOT NULL,
     shipping_id INT NOT NULL,
@@ -119,5 +119,13 @@ CREATE TABLE 'Return' (
     FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id)
 );
 
-
+-- Create Inventory table
+CREATE TABLE Inventory (
+    -- Specification ID: Primary key, uniquely identifies each product specification (e.g., "1_XS_pink", "501_ANC_black")
+    spec_id VARCHAR(100) NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL COMMENT 'Available stock quantity of the specific product specification',
+    PRIMARY KEY (spec_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Product inventory management table - tracks stock levels per product specification';
 
