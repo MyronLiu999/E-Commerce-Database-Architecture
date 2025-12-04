@@ -2,11 +2,149 @@
 -- Combined and updated version following database_design.md specifications
 
 -- 1. Create target database (if not exists) and switch to it
-DROP database Ecommerce;
+DROP DATABASE IF EXISTS Ecommerce;
 CREATE DATABASE Ecommerce;
-CREATE DATABASE IF NOT EXISTS Ecommerce;
 USE Ecommerce;
-SELECT 1;
+
+-- ====================================================================
+-- TABLE CREATION SECTION - Based on Current Database Design
+-- ====================================================================
+
+-- Country Table
+CREATE TABLE Country (
+    country_id INT AUTO_INCREMENT PRIMARY KEY,
+    country_name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- State Table
+CREATE TABLE State (
+    state_id INT AUTO_INCREMENT PRIMARY KEY,
+    state_name VARCHAR(100) NOT NULL,
+    country_id INT NOT NULL,
+    tax_rate DECIMAL(6, 4) NOT NULL COMMENT 'Tax rate as decimal (0.1234 = 12.34%)',
+    FOREIGN KEY (country_id) REFERENCES Country(country_id)
+);
+
+-- City Table
+CREATE TABLE City (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL,
+    state_id INT NOT NULL,
+    FOREIGN KEY (state_id) REFERENCES State(state_id)
+);
+
+-- Address Table
+CREATE TABLE Address (
+    address_id INT AUTO_INCREMENT PRIMARY KEY,
+    address_type VARCHAR(50) NOT NULL COMMENT 'Shipping/Billing',
+    zip_code VARCHAR(20),
+    city_id INT NOT NULL,
+    street_line TEXT NOT NULL,
+    FOREIGN KEY (city_id) REFERENCES City(city_id)
+);
+
+-- User Table
+CREATE TABLE User (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    password_hash VARCHAR(50) NOT NULL,
+    address_id INT NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES Address(address_id)
+);
+
+-- Product Table
+CREATE TABLE Product (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    category VARCHAR(100) NOT NULL
+);
+
+-- Inventory Table
+CREATE TABLE Inventory (
+    spec_id VARCHAR(100) NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL COMMENT 'Available stock quantity of the specific product specification',
+    PRIMARY KEY (spec_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+) COMMENT='Product inventory management table - tracks stock levels per product specification';
+
+-- Payment Table
+CREATE TABLE Payment (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    payment_status TINYINT NOT NULL COMMENT '0-Unpaid/1-Paid',
+    payment_method VARCHAR(50) NOT NULL COMMENT 'Credit Card/Bank Account/PayPal',
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_timestamp DATETIME NOT NULL
+);
+
+-- Order Table (Updated with session_id and cart_id)
+CREATE TABLE `Order` (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_status TINYINT NOT NULL COMMENT '0-Pending/1-Paid/2-Shipped/3-Completed',
+    payment_id INT NOT NULL,
+    check_out_timestamp DATETIME NOT NULL,
+    session_id VARCHAR(100) COMMENT 'Session ID for conversion analysis',
+    cart_id INT COMMENT 'Cart ID for conversion analysis',
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (payment_id) REFERENCES Payment(payment_id)
+);
+
+-- Shipping Method Table
+CREATE TABLE ShippingMethod (
+    shipping_method_id INT AUTO_INCREMENT PRIMARY KEY,
+    method_name VARCHAR(100) NOT NULL COMMENT 'Standard/Overnight/Mid-tier/Express/Economy/Priority/Same Day/Two Day/Ground/Air',
+    base_cost DECIMAL(10, 2) NOT NULL
+);
+
+-- Shipping Table
+CREATE TABLE Shipping (
+    shipping_id INT AUTO_INCREMENT PRIMARY KEY,
+    shipping_method_id INT NOT NULL,
+    address_id INT NOT NULL,
+    delivery_timestamp DATETIME NOT NULL,
+    FOREIGN KEY (shipping_method_id) REFERENCES ShippingMethod(shipping_method_id),
+    FOREIGN KEY (address_id) REFERENCES Address(address_id)
+);
+
+-- Order Product Table
+CREATE TABLE OrderProduct (
+    order_product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    shipping_id INT NOT NULL,
+    order_product_subtotal DECIMAL(10, 2) NOT NULL COMMENT 'Product amount + shipping fee + tax',
+    order_product_status TINYINT NOT NULL COMMENT '0-Shipped/1-Completed',
+    order_id INT NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Product(product_id),
+    FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id),
+    FOREIGN KEY (order_id) REFERENCES `Order`(order_id)
+);
+
+-- Return Table
+CREATE TABLE `Return` (
+    return_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_product_id INT NOT NULL,
+    shipping_id INT NOT NULL,
+    return_status TINYINT NOT NULL COMMENT '0-Applied/1-Approved/2-Rejected/3-Closed',
+    return_requested_time DATETIME NOT NULL,
+    exp_return_time DATETIME,
+    return_amount DECIMAL(10, 2) NOT NULL,
+    return_fee DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_product_id) REFERENCES OrderProduct(order_product_id),
+    FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id)
+);
+
+SELECT 'All tables created successfully!' AS Status;
+
+-- ====================================================================
+-- DATA GENERATION SECTION
+-- ====================================================================
+
 -- 2. Disable safe update mode for batch operations
 SET SQL_SAFE_UPDATES = 0;
 
@@ -266,10 +404,42 @@ BEGIN
     -- ==============================================
     INSERT IGNORE INTO Inventory (spec_id, product_id, quantity)
     VALUES
+    -- Fashion products (1-500) with blue colors and large sizes for Query 4
     ('1_XS_pink', 1, FLOOR(RAND()*1000)),
     ('1_M_white', 1, FLOOR(RAND()*1000)),
-    ('2_L_denim', 2, FLOOR(RAND()*1000)),
+    ('1_L_blue', 1, FLOOR(RAND()*1000)),         -- Large + blue for Query 4
+    ('1_XL_black', 1, FLOOR(RAND()*1000)),
+    ('2_L_denim', 2, FLOOR(RAND()*1000)),        -- Large for Query 4
     ('2_XXL_black', 2, FLOOR(RAND()*1000)),
+    ('2_M_blue', 2, FLOOR(RAND()*1000)),         -- Blue for Query 4
+    ('3_S_red', 3, FLOOR(RAND()*1000)),
+    ('3_L_blue', 3, FLOOR(RAND()*1000)),         -- Large + blue for Query 4
+    ('3_M_green', 3, FLOOR(RAND()*1000)),
+    ('4_XS_white', 4, FLOOR(RAND()*1000)),
+    ('4_Large_blue', 4, FLOOR(RAND()*1000)),     -- Large + blue for Query 4
+    ('5_M_navy', 5, FLOOR(RAND()*1000)),
+    ('5_L_cotton', 5, FLOOR(RAND()*1000)),       -- Large for Query 4
+    ('6_S_blue', 6, FLOOR(RAND()*1000)),         -- Blue for Query 4
+    ('6_XL_polyester', 6, FLOOR(RAND()*1000)),
+    ('7_L_silk', 7, FLOOR(RAND()*1000)),         -- Large for Query 4
+    ('7_M_blue', 7, FLOOR(RAND()*1000)),         -- Blue for Query 4
+    ('8_S_wool', 8, FLOOR(RAND()*1000)),
+    ('8_large_blue', 8, FLOOR(RAND()*1000)),     -- Large + blue for Query 4
+    ('9_XS_linen', 9, FLOOR(RAND()*1000)),
+    ('9_L_cashmere', 9, FLOOR(RAND()*1000)),     -- Large for Query 4
+    ('10_M_denim', 10, FLOOR(RAND()*1000)),
+    ('10_L_blue', 10, FLOOR(RAND()*1000)),       -- Large + blue for Query 4
+    -- More fashion products with various blue shades and large sizes
+    ('15_L_royal_blue', 15, FLOOR(RAND()*1000)),     -- Large + blue for Query 4
+    ('20_XL_sky_blue', 20, FLOOR(RAND()*1000)),      -- Large + blue for Query 4
+    ('25_L_navy_blue', 25, FLOOR(RAND()*1000)),      -- Large + blue for Query 4
+    ('30_Large_powder_blue', 30, FLOOR(RAND()*1000)),-- Large + blue for Query 4
+    ('35_L_denim_blue', 35, FLOOR(RAND()*1000)),     -- Large + blue for Query 4
+    ('40_XL_blue', 40, FLOOR(RAND()*1000)),          -- Large + blue for Query 4
+    ('45_L_cobalt_blue', 45, FLOOR(RAND()*1000)),    -- Large + blue for Query 4
+    ('50_large_steel_blue', 50, FLOOR(RAND()*1000)), -- Large + blue for Query 4
+    
+    -- Other category products (keeping existing ones)
     ('501_ANC_black', 501, FLOOR(RAND()*1000)),
     ('501_ANC_white', 501, FLOOR(RAND()*1000)),
     ('502_wired_silver', 502, FLOOR(RAND()*1000)),
@@ -397,14 +567,20 @@ BEGIN
     DECLARE order_status TINYINT;
     DECLARE payment_id INT;
     DECLARE check_out_time DATETIME;
+    DECLARE session_id VARCHAR(100);
+    DECLARE cart_id INT;
     WHILE i <= 100000 DO -- 100000 orders per requirements
         SET user_id = FLOOR(1 + RAND() * 1000) + 1000; -- Randomly link to User ID 1000-2000
         SET order_status = FLOOR(RAND() * 4); -- 0-Pending, 1-Paid, 2-Shipped, 3-Completed
         SET payment_id = i; -- One-to-one mapping with Payment table
+        -- Generate session_id for conversion analysis
+        SET session_id = CONCAT('sess_', LPAD(i, 8, '0'), '_', SUBSTRING(MD5(RAND()), 1, 8));
+        -- Generate cart_id for conversion analysis
+        SET cart_id = FLOOR(10000 + RAND() * 90000); -- Random cart ID (10000-99999)
         -- Order timestamp ≤ Payment timestamp (logical consistency)
         SET check_out_time = DATE_SUB((SELECT payment_timestamp FROM Payment WHERE payment_id = i LIMIT 1), INTERVAL FLOOR(RAND() * 24) HOUR);
-        INSERT INTO `Order` (user_id, order_status, payment_id, check_out_timestamp)
-        VALUES (user_id, order_status, payment_id, check_out_timestamp);
+        INSERT INTO `Order` (user_id, order_status, payment_id, check_out_timestamp, session_id, cart_id)
+        VALUES (user_id, order_status, payment_id, check_out_time, session_id, cart_id);
         SET i = i + 1;
     END WHILE;
 END //
@@ -415,6 +591,7 @@ DELIMITER //
 CREATE PROCEDURE GenerateShippingMethodData()
 BEGIN
     DECLARE i INT DEFAULT 1;
+    DECLARE shipping_method_id INT;
     DECLARE method_name VARCHAR(100);
     DECLARE base_cost DECIMAL(10, 2);
     -- Updated shipping methods to match design
@@ -422,7 +599,7 @@ BEGIN
     WHILE i <= 10 DO
         SET method_name = SUBSTRING_INDEX(SUBSTRING_INDEX(@method_names, ',', i), ',', -1);
         SET base_cost = FLOOR(5 + RAND() * 50) + RAND(); -- Random base cost (5-55)
-        SET shipping_method_id = i
+        SET shipping_method_id = i;
         INSERT INTO ShippingMethod (shipping_method_id, method_name, base_cost)
         VALUES (shipping_method_id, method_name, base_cost);
         SET i = i + 1;
@@ -451,7 +628,7 @@ END //
 DELIMITER ;
 
 -- 14. Generate OrderProduct table (150000 records: link to Order, Product, and Shipping)
-DROP PROCEDURE GenerateOrderProductData;
+DROP PROCEDURE IF EXISTS GenerateOrderProductData;
 DELIMITER //
 CREATE PROCEDURE GenerateOrderProductData()
 BEGIN
@@ -527,11 +704,11 @@ SET SQL_SAFE_UPDATES = 1;
 
 -- Display completion message
 SELECT 'All data generation completed successfully!' AS Status,
-       'Generated: 1000 users, 5000 products, 10000 inventory records, 100000 orders, 150000 order items, 10000 returns' AS Summary;
+       'Generated: 1000 users, 5000 products, 10000 inventory records, 100000 orders with session/cart tracking, 150000 order items, 10000 returns' AS Summary;
 
--- Inser Sarah
+-- Insert Sarah (sample user)
 USE Ecommerce;
-INSERT INTO user (user_id, email, first_name, last_name, phone_number, password_hash, address_id)
+INSERT INTO User (user_id, email, first_name, last_name, phone_number, password_hash, address_id)
 VALUES (
   1000,
   'sarah.han1022@example.com',

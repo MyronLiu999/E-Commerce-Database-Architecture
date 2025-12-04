@@ -320,7 +320,7 @@ ORDER BY r.return_requested_time DESC;
 
 -- MySQL Query
 SELECT 
-    COUNT(o.order_id) AS total_orders,
+    COUNT(o1.order_id) AS total_orders,
     ROUND(AVG(DATEDIFF(o2.check_out_timestamp, o1.check_out_timestamp)), 2) AS avg_days_between_purchases
 FROM `Order` o1
 JOIN `Order` o2 ON o1.user_id = o2.user_id AND o1.check_out_timestamp < o2.check_out_timestamp
