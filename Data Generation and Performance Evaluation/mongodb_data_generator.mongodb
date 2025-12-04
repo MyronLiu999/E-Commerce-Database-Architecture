@@ -6,7 +6,7 @@
 use('ecommerce_catalog');
 
 // Drop existing collections (optional - uncomment if needed)
-// db.product_specs.drop();
+db.product_specs.drop();
 
 // ====================
 // PRODUCT SPECIFICATIONS COLLECTION
@@ -688,6 +688,94 @@ use('ecommerce_events');
 // ====================
 
 db.user_events.insertMany([
+    // User 1000 Events
+    {
+        "user_id": 1000,
+        "session_id": 100001,
+        "event_type": "view",
+        "product_id": 12345,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:15:00Z"),
+        "page_url": "/products/12345",
+        "referrer": "google.com"
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100001,
+        "event_type": "view",
+        "product_id": 23456,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:20:00Z"),
+        "page_url": "/products/23456",
+        "referrer": null
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100001,
+        "event_type": "add_to_cart",
+        "product_id": 12345,
+        "search_term": null,
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:25:00Z"),
+        "spec_id": "12345_S_blue",
+        "quantity": 2
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100001,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "ceramic vase",
+        "device_type": "desktop",
+        "timestamp": new Date("2025-11-20T08:30:00Z"),
+        "results_count": 12
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100002,
+        "event_type": "search",
+        "product_id": null,
+        "search_term": "bluetooth headphones",
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:20:00Z"),
+        "results_count": 25
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100002,
+        "event_type": "view",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:25:00Z"),
+        "page_url": "/products/67890",
+        "referrer": "/search"
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100002,
+        "event_type": "add_to_cart",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:30:00Z"),
+        "spec_id": "67890_BT53",
+        "quantity": 1
+    },
+    {
+        "user_id": 1000,
+        "session_id": 100002,
+        "event_type": "purchase",
+        "product_id": 67890,
+        "search_term": null,
+        "device_type": "mobile",
+        "timestamp": new Date("2025-11-20T09:45:00Z"),
+        "order_id": 20001,
+        "amount": 299.99
+    },    
+    
     // User 1001 Events
     {
         "user_id": 1001,
@@ -825,7 +913,7 @@ db.user_events.insertMany([
 
     // Guest User Events (session-based)
     {
-        "user_id": null,
+        "user_id": 1000,
         "session_id": 200001,
         "event_type": "search",
         "product_id": null,
@@ -835,7 +923,7 @@ db.user_events.insertMany([
         "results_count": 156
     },
     {
-        "user_id": null,
+        "user_id": 1000,
         "session_id": 200001,
         "event_type": "view",
         "product_id": 12345,
@@ -846,7 +934,7 @@ db.user_events.insertMany([
         "referrer": "/search"
     },
     {
-        "user_id": null,
+        "user_id": 1000,
         "session_id": 200002,
         "event_type": "search",
         "product_id": null,
@@ -856,7 +944,7 @@ db.user_events.insertMany([
         "results_count": 24
     },
     {
-        "user_id": null,
+        "user_id": 1000,
         "session_id": 200002,
         "event_type": "view",
         "product_id": 78901,
@@ -994,7 +1082,7 @@ db.cart_sessions.insertMany([
         "created_at": new Date("2025-11-20T11:00:00Z"),
         "last_updated": new Date("2025-11-20T11:30:00Z"),
         "is_converted_to_order": false,
-        "order_id": null,
+        "order_id": 1000,
         "device_type": "tablet",
         "total_value": 221.97,
         "currency": "USD"
@@ -1002,7 +1090,7 @@ db.cart_sessions.insertMany([
     {
         "cart_id": 6001,
         "session_id": 200001,
-        "user_id": null,
+        "user_id": 1000,
         "items": [
             {
                 "product_id": 12345,
@@ -1015,7 +1103,7 @@ db.cart_sessions.insertMany([
         "created_at": new Date("2025-11-20T08:45:00Z"),
         "last_updated": new Date("2025-11-20T08:45:00Z"),
         "is_converted_to_order": false,
-        "order_id": null,
+        "order_id": 1000,
         "device_type": "mobile",
         "total_value": 29.99,
         "currency": "USD"
@@ -1023,7 +1111,7 @@ db.cart_sessions.insertMany([
     {
         "cart_id": 6002,
         "session_id": 200002,
-        "user_id": null,
+        "user_id": 1000,
         "items": [
             {
                 "product_id": 67890,
@@ -1043,7 +1131,7 @@ db.cart_sessions.insertMany([
         "created_at": new Date("2025-11-20T10:15:00Z"),
         "last_updated": new Date("2025-11-20T10:25:00Z"),
         "is_converted_to_order": false,
-        "order_id": null,
+        "order_id": 1000,
         "device_type": "desktop",
         "total_value": 389.98,
         "currency": "USD"
@@ -1091,7 +1179,7 @@ db.createView("popular_products", "user_events", [
 // Create view for conversion funnel
 db.createView("conversion_funnel", "cart_sessions", [
     { $group: {
-        _id: null,
+        // _id: null,
         total_carts: { $sum: 1 },
         converted_carts: { $sum: { $cond: ["$is_converted_to_order", 1, 0] } },
         total_cart_value: { $sum: "$total_value" },
@@ -1102,7 +1190,7 @@ db.createView("conversion_funnel", "cart_sessions", [
         }
     }},
     { $project: {
-        _id: 0,
+        // _id: 0,
         total_carts: 1,
         converted_carts: 1,
         conversion_rate: { 

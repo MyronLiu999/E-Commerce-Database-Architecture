@@ -14,9 +14,10 @@ ORDER BY p.product_name;
 -- Database: ecommerce_catalog, Collection: product_specs
 /*
 MongoDB:
+use ecommerce_catalog
 db.product_specs.find(
   { 
-    "product_id": { $in: [/* insert fashion product_ids from MySQL */] }
+    "product_id": { $le: 500 }
   },
   {
     "product_id": 1,
@@ -40,7 +41,7 @@ db.product_specs.find(
 /*
 db.user_events.find(
   {
-    "user_id": 1001,  // Replace with Sarah's actual user_id
+    "user_id": 1000,  // Sarah's actual user_id
     "event_type": "view",
     "timestamp": {
       $gte: new Date(new Date().setMonth(new Date().getMonth() - 6))
@@ -94,7 +95,7 @@ WHERE category = 'fashion';
 db.product_specs.find(
   {
     $and: [
-      { "product_id": { $in: [/* insert fashion product_ids from MySQL */] } },
+      { "product_id": { $lt: 500 } },
       {
         $or: [
           { "attributes.color": "blue" },
@@ -122,6 +123,7 @@ db.product_specs.find(
 -- MongoDB Query
 -- Database: ecommerce_events, Collection: user_events
 /*
+use ecommerce_events;
 db.user_events.aggregate([
   {
     $match: {
@@ -159,7 +161,7 @@ db.user_events.aggregate([
 -- MySQL Query
 SELECT product_id, product_name, category 
 FROM Product 
-WHERE product_id IN (/* insert top viewed product_ids from MongoDB */);
+WHERE product_id IN (12345, 67890, 23456, 34567, 45678, 89012, 56789, 78901);
 
 
 
@@ -224,20 +226,14 @@ db.user_events.aggregate([
 -- QUERY 7: Fetch all carts for users, showing device type (e.g., laptop, tablet), the number of items in the cart, and total amount.
 -- 1. Get active cart data from Redis
 -- 2. Get cart analytics from MongoDB
--- 3. Get user details from MySQL
 
 -- Redis Commands
-/*
+
 KEYS cart:*
-For each key returned above:
-JSON.GET {key_name}
 
 Examples:
 JSON.GET cart:user:1001  -- For a logged-in user cart 1001
 JSON.GET cart:200001     -- For a guest session cart 200001
-*/
-
-
 
 
 -- MongoDB Query
@@ -256,13 +252,6 @@ db.cart_sessions.find(
 ).sort({"last_updated": -1});
 */
 
--- MySQL Query
-SELECT 
-    u.user_id,
-    u.first_name,
-    u.last_name
-FROM User u
-WHERE u.user_id IN (/* insert user_ids from cart data */);
 
 -- QUERY 8: Retrieve all orders placed by Sarah, showing order IDs, item details, payment methods, shipping options chosen, and the status of each order.
 
@@ -297,12 +286,10 @@ WHERE u.first_name = 'Sarah'  -- Replace with actual user identification
 ORDER BY o.check_out_timestamp DESC, o.order_id, op.order_product_id;
 
 
-
-
 -- QUERY 9: List all items returned by the user, along with the refund status, amount, and any restocking fees.
 
 -- MySQL Query
-SELECT 
+SELECT
     r.return_id,
     p.product_id,
     p.product_name,
@@ -311,7 +298,7 @@ SELECT
     r.return_fee,
     r.return_requested_time,
     r.exp_return_time,
-    CASE 
+    CASE
         WHEN r.return_status = 0 THEN 'Applied'
         WHEN r.return_status = 1 THEN 'Approved'
         WHEN r.return_status = 2 THEN 'Rejected'
@@ -322,12 +309,10 @@ SELECT
     u.last_name
 FROM `Return` r
 JOIN OrderProduct op ON r.order_product_id = op.order_product_id
-JOIN Product p ON op.product_id = p.product_id  
+JOIN Product p ON op.product_id = p.product_id
 JOIN `Order` o ON op.order_id = o.order_id
 JOIN User u ON o.user_id = u.user_id
-WHERE u.first_name = 'Sarah'  -- Replace with actual user identification  
 ORDER BY r.return_requested_time DESC;
-
 
 
 
@@ -343,8 +328,6 @@ JOIN User u ON o1.user_id = u.user_id
 WHERE u.first_name = 'Sarah'
     AND o1.order_status IN (1, 2, 3)
     AND o2.order_status IN (1, 2, 3);
-
-
 
 
 -- QUERY 11: Calculate the percentage of carts that did not convert to orders in the past 30 days.
@@ -401,7 +384,6 @@ db.cart_sessions.aggregate([
 
 
 
-
 -- QUERY 12: Find the top 3 products most frequently purchased together with "headphones".
 
 -- MySQL Query
@@ -419,19 +401,6 @@ WHERE (LOWER(p1.product_name) LIKE '%headphone%' OR LOWER(p1.category) = 'headph
 GROUP BY p2.product_id, p2.product_name, p2.category
 ORDER BY times_bought_together DESC
 LIMIT 3;
-
--- Alternative: Neo4j Graph Database Approach
-/*
-MATCH (headphones:Product)-[:BOUGHT_WITH]->(other:Product)
-WHERE toLower(headphones.name) CONTAINS 'headphone' 
-   OR toLower(headphones.category) = 'headphone'
-WITH other, count(*) as frequency
-ORDER BY frequency DESC
-LIMIT 3
-RETURN other.product_id, other.name, other.category, frequency
-*/
-
-
 
 
 -- QUERY 13: For each user, compute days since last purchase and total order count.
